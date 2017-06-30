@@ -1,82 +1,39 @@
 from bs4 import BeautifulSoup
 import urllib.request as u
 import lxml,pickle
+#Scraping function
+def scrape_ret(link,desc):
+	
+	req=u.urlopen(link).read()
+	reqSoup=BeautifulSoup(req,'lxml')
+	reqSoup.prettify()
+	x=reqSoup.select(desc)
+	xl=[x[i].text for i in range(len(x))]
+	return xl
+#pickleDumping
+def pickleDump(linklist,name):
+	f = open(name,'wb')
+	pickle.dump(linklist,f)
+	f.close() 
+#pickleOpening 
+def pickleOpen(name):
+	f = open(name,'rb')  
+	name = pickle.load(f)
+	return name
 
-#TOI
-linkTOI='http://timesofindia.indiatimes.com/'
-toi = u.urlopen(linkTOI).read()
-Toisoup = BeautifulSoup(toi)
-Toisoup.prettify()
-x=Toisoup.select('.list8 > li > a')
-xl=[]
-for i  in range(len(x)):
-	xl.append(x[i].text)
-
-
-
-
-# open the file for writing
-fileObject = open('toi','wb') 
-
-# this writes the object a to the
-# file named 'testfile'
-pickle.dump(xl,fileObject)  
-fileObject.close()
-
-
-#TheHindu
-linkTH='http://www.thehindu.com/'
-th=u.urlopen(linkTH).read()
-thSoup=BeautifulSoup(th)
-thSoup.prettify()
-x=thSoup.select('.story-card-news > h3 > a')
-for i in range(len(x)):
-	print(x[i].text)
-xl=[]
-for i  in range(len(x)):
-	xl.append(x[i].text)
+def main():
+	links={'toi':['toi','http://timesofindia.indiatimes.com/','.list8 > li > a'],'theHindu':['th','http://www.thehindu.com/','.story-card-news > h3 > a'],
+			'ndtv':['ndtv','http://www.ndtv.com/','.lead_stories_opt > ul > li']}
+	
+	for news_sites in links:
+		l=scrape_ret(links[news_sites][1],links[news_sites][2])
+		pickleDump(l,links[news_sites][0])
 
 
+if __name__ == '__main__':
+	main()
+	name=pickleOpen('toi')
+	print(name)
 
 
-# open the file for writing
-fileObject = open('thehindu','wb') 
-
-# this writes the object a to the
-# file named 'testfile'
-pickle.dump(xl,fileObject)  
-fileObject.close()
-
-
-
-
-
-#NDTV
-linkNDTV='http://www.ndtv.com/'
-ndtv=u.urlopen(linkNDTV).read()
-ndtvSoup=BeautifulSoup(ndtv)
-ndtvSoup.prettify()
-x=ndtvSoup.select('.lead_stories_opt > ul > li')
-xl=[]
-for i  in range(len(x)):
-	xl.append(x[i].text)
-# open the file for writing
-fileObject = open('ndtv','wb') 
-
-# this writes the object a to the
-# file named 'testfile'
-pickle.dump(xl,fileObject)  
-fileObject.close()
-
-
-
-#Pickle Loading
-fileObject = open('ndtv','rb')  
-# load the object from the file into var b
-ndtv = pickle.load(fileObject)
-fileObject.close()
-#toi
-fileObject = open('toi','rb')
-toi = pickle.load(fileObject)
-fileObject.close()
 
